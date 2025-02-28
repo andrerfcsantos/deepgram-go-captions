@@ -8,29 +8,19 @@ import (
 	"github.com/andrerfcsantos/deepgram-go-captions/converters"
 )
 
-func NewSRT(converter converters.Converter) *SRT {
-	return &SRT{
-		converter: converter,
-	}
-}
-
-type SRT struct {
-	converter converters.Converter
-}
-
-func (s *SRT) Render() (string, error) {
+func SRT(converter converters.Converter) (string, error) {
 	var output []string
 
-	lines, err := s.converter.Lines(converters.WithLineLength(8))
+	worder, err := converter.Convert()
 	if err != nil {
-		return "", fmt.Errorf("getting lines from covnerter : %w", err)
+		return "", fmt.Errorf("getting worder from converter : %w", err)
 	}
 
 	entry := 1
 	currentSpeaker := 0
 	currentSpeakerIsValid := false
 
-	for _, words := range lines {
+	for _, words := range worder.Lines() {
 		// Add entry number
 		output = append(output, strconv.Itoa(entry))
 		entry++

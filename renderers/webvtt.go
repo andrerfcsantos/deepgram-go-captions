@@ -8,32 +8,24 @@ import (
 	"github.com/andrerfcsantos/deepgram-go-captions/converters"
 )
 
-func NewWebVTT(converter converters.Converter) *WebVTT {
-	return &WebVTT{
-		converter: converter,
-	}
-}
-
-type WebVTT struct {
-	converter converters.Converter
-}
-
-func (w *WebVTT) Render() (string, error) {
+func WebVTT(converter converters.Converter) (string, error) {
 	var output []string
 	output = append(output, "WEBVTT")
 	output = append(output, "")
 
 	// Check if converter implements HeaderConverter interface
-	if headerConverter, ok := w.converter.(converters.HeaderConverter); ok {
+	if headerConverter, ok := converter.(converters.HeaderWorder); ok {
 		headers := headerConverter.Headers()
 		output = append(output, strings.Join(headers, "\n"))
 		output = append(output, "")
 	}
 
-	lines, err := w.converter.Lines(converters.WithLineLength(8))
+	result, err := converter.Convert()
 	if err != nil {
-		return "", fmt.Errorf("getting lines from converter: %w", err)
+		return "", fmt.Errorf("getting worder from converter: %w", err)
 	}
+
+	lines := result.Lines()
 
 	if len(lines) == 0 {
 		return "", errors.New("no transcript data found")
